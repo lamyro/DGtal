@@ -76,7 +76,8 @@ namespace DGtal
    *        29(3):437-448, 2007.
    *
    * The output is a vector of digital ball, with digital center and an
-   * integer squared radius.
+   * integer @e squared @e radius.
+   *
    *
    * @note Following ReverseDistanceTransformation, the input shape is
    * defined as points with negative power distance.
@@ -94,7 +95,7 @@ namespace DGtal
     ///Weight type
     typedef typename TPowerMap::Weight SquaredRadius;
     
-    ///Digital medial ball type (digital center, weights are squared distance)
+    ///Digital medial ball type (digital center, integer squared radius)
     typedef std::pair<Point,SquaredRadius> MABall;
     
     ///Medial Axis Constainer
@@ -106,7 +107,7 @@ namespace DGtal
      *
      * @param aPowerMap the input powerMap
      *
-     * @return a vector of digital balls.
+     * @return a vector of digital balls ({center, squared radius}).
      */
     static
     MABalls computeReducedMedialAxisFromPowerMap(const TPowerMap &aPowerMap)
