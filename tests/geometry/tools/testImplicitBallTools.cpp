@@ -32,7 +32,6 @@
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Dense>
 #include "DGtal/base/Common.h"
 #include "DGtal/helpers/StdDefs.h"
 #include "DGtal/kernel/NumberTraits.h"

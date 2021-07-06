@@ -18,7 +18,7 @@
 
 /**
  * @file ReducedMedialAxis.h
- * @brief Linear in time distance transformation
+ * @brief Linear in time distance reduced medial axis extraction
  * @author David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr )
  * Laboratoire d'InfoRmatique en Image et Systèmes d'information - LIRIS (CNRS, UMR 5205), CNRS, France
  *
@@ -56,7 +56,6 @@
 
 namespace DGtal
 {
-
   /////////////////////////////////////////////////////////////////////////////
   // template class ReducedMedialAxis
   /**
