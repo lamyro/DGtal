@@ -38,6 +38,7 @@
 #include "DGtal/geometry/volumes/distance/ExactPredicateLpPowerSeparableMetric.h"
 #include "DGtal/kernel/sets/DigitalSetDomain.h"
 #include "DGtal/kernel/sets/DigitalSetBySTLSet.h"
+#include "DGtal/images/ImageContainerBySTLMap.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -62,7 +63,6 @@ bool testReducedMedialAxis( std::array<bool, 2> const& aPeriodicity = {{ false, 
 
   DigitalSetBySTLSet<Z2i::Domain > set(domain);
   set.insertNew(Z2i::Point(3,3));
-  //set.insertNew(Z2i::Point(3,7));
   set.insertNew(Z2i::Point(7,7));
 
   using SetDomain = DigitalSetDomain< DigitalSetBySTLSet<Z2i::Domain > >;
@@ -71,7 +71,6 @@ bool testReducedMedialAxis( std::array<bool, 2> const& aPeriodicity = {{ false, 
 
   //Setting some values
   image.setValue(Z2i::Point(3,3), 9);
-  //  image.setValue(Z2i::Point(3,7), 0);
   image.setValue(Z2i::Point(7,7), 16);
 
   Z2i::L2PowerMetric l2power;
@@ -113,22 +112,13 @@ bool testReducedMedialAxis( std::array<bool, 2> const& aPeriodicity = {{ false, 
   trace.info()<<std::endl;
 
   //Medial Axis extraction
-  ReducedMedialAxis<PowerMap<Image, Z2i::L2PowerMetric> >::Type  rdma = ReducedMedialAxis< PowerMap<Image, Z2i::L2PowerMetric> >::getReducedMedialAxisFromPowerMap(power);
+  ReducedMedialAxis<PowerMap<Image, Z2i::L2PowerMetric> >::MABalls  rdma = ReducedMedialAxis< PowerMap<Image, Z2i::L2PowerMetric> >::computeReducedMedialAxisFromPowerMap(power);
 
   //Reconstruction
-  for(unsigned int i=0; i<11; i++)
-    {
-      for(unsigned int j=0; j<11; j++)
-        {
-          Z2i::Point p(i,j);
-          if (rdma.domain().isInside(p) )
-            trace.info()<< rdma(p);
-          else
-            trace.info()<< " - ";
-
-        }
-      std::cerr<<std::endl;
-    }
+  for(auto &b: rdma)
+  {
+    trace.info() <<"Got the digtal ball: "<<b.first<<" radius="<<b.second<<std::endl;
+  }
   trace.info()<<std::endl;
 
 
@@ -137,21 +127,6 @@ bool testReducedMedialAxis( std::array<bool, 2> const& aPeriodicity = {{ false, 
   trace.info() << "(" << nbok << "/" << nb << ") "
                << "true == true" << std::endl;
   trace.endBlock();
-
-  bool isEqual = true;
-  for ( auto const & pt : domain )
-    {
-      const Image::Value a = image.domain().isInside(pt) ? image(pt) : 0;
-      const Image::Value b = rdma.domain().isInside(pt) ? rdma(pt) : 0;
-      if ( a != b )
-        {
-          isEqual = false;
-          break;
-        }
-    }
-
-  trace.info() << "Equality ? " << isEqual << std::endl;
-
   return nbok == nb;
 }
 
