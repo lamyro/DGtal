@@ -373,29 +373,33 @@ DGtal::PowerMap<W,TSep,Im>::PowerMap( ConstAlias<Domain> aDomain,
 template <typename W,typename TSep,typename Im>
 inline
 typename DGtal::PowerMap<W,TSep,Im>::Point
-DGtal::PowerMap<W,TSep,Im>::projectPoint( Point aPoint, const Dimension aMaxDim ) const
+DGtal::PowerMap<W,TSep,Im>::projectPoint( const Point &aPoint,
+                                         const Dimension aMaxDim ) const
 {
+  Point p=aPoint;
   for ( std::size_t i = 0; i < myPeriodicityIndex.size() && myPeriodicityIndex[i] <= aMaxDim; ++i )
-    aPoint[ myPeriodicityIndex[i] ] = projectCoordinate( aPoint[ myPeriodicityIndex[i] ], myPeriodicityIndex[i] );
+    p[ myPeriodicityIndex[i] ] = projectCoordinate( aPoint[ myPeriodicityIndex[i] ], myPeriodicityIndex[i] );
 
-  return aPoint;
+  return p;
 }
 
 template <typename W,typename TSep,typename Im>
 inline
 typename DGtal::PowerMap<W,TSep,Im>::Point
-DGtal::PowerMap<W,TSep,Im>::projectPoint( Point aPoint  ) const
+DGtal::PowerMap<W,TSep,Im>::projectPoint( const Point &aPoint  ) const
 {
+  Point p=aPoint;
   for ( auto const & dim : myPeriodicityIndex )
-    aPoint[ dim ] = projectCoordinate( aPoint[ dim ], dim );
+    p[ dim ] = projectCoordinate( aPoint[ dim ], dim );
 
-  return aPoint;
+  return p;
 }
 
 template <typename W,typename TSep,typename Im>
 inline
 typename DGtal::PowerMap<W,TSep,Im>::Point::Coordinate
-DGtal::PowerMap<W,TSep,Im>::projectCoordinate( typename Point::Coordinate aCoordinate, const Dimension aDim ) const
+DGtal::PowerMap<W,TSep,Im>::projectCoordinate( const typename Point::Coordinate aCoordinate,
+                                              const Dimension aDim ) const
 {
   ASSERT( aCoordinate - myDomainPtr->lowerBound()[aDim] + myDomainExtent[aDim] >= 0 );
   return ( aCoordinate - myDomainPtr->lowerBound()[aDim] + myDomainExtent[aDim] ) % myDomainExtent[aDim] + myDomainPtr->lowerBound()[aDim];

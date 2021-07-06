@@ -303,7 +303,7 @@ namespace DGtal
      * @return the coordinates projected into the domain bounds accordingly
      *         to the periodicity specification.
      */
-    Point projectPoint( Point aPoint ) const;
+    Point projectPoint( const Point &aPoint ) const;
 
     /**
      * Self Display method.
@@ -355,7 +355,8 @@ namespace DGtal
      *         to the periodicity specification, and only for dimension lower
      *         or equal to @a aMaxDim.
      */
-    Point projectPoint( Point aPoint, const Dimension aMaxDim ) const;
+    Point projectPoint( const Point &aPoint,
+                       const Dimension aMaxDim ) const;
 
     /**
      * Project a coordinate into the domain, taking into account
@@ -368,12 +369,8 @@ namespace DGtal
      * @return the coordinates projected into the domain bounds accordingly
      *         to the periodicity specification.
      */
-    typename Point::Coordinate projectCoordinate( typename Point::Coordinate aCoordinate, const Dimension aDim ) const;
-
-    // ------------------- protected methods ------------------------
-  protected:
-
-
+    typename Point::Coordinate projectCoordinate( const typename Point::Coordinate aCoordinate,
+                                                 const Dimension aDim ) const;
 
     // ------------------- Private members ------------------------
   private:
@@ -396,6 +393,7 @@ namespace DGtal
     /// Domain extent.
     Point myDomainExtent;
 
+    // ------------------- protected methods ------------------------
   protected:
     ///Pointer to the separable metric instance
     const PowerSeparableMetric * myMetricPtr;

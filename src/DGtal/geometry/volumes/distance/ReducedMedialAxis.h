@@ -18,7 +18,7 @@
 
 /**
  * @file ReducedMedialAxis.h
- * @brief Linear in time distance transformation
+ * @brief Linear in time distance reduced medial axis extraction
  * @author David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr )
  * Laboratoire d'InfoRmatique en Image et Systèmes d'information - LIRIS (CNRS, UMR 5205), CNRS, France
  *
@@ -45,26 +45,23 @@
 // Inclusions
 #include <iostream>
 #include <vector>
+#include <set>
+#include <unordered_set>
 #include "DGtal/base/Common.h"
+#include "DGtal/kernel/PointHashFunctions.h"
 #include "DGtal/kernel/NumberTraits.h"
 #include "DGtal/geometry/volumes/distance/CPowerSeparableMetric.h"
 #include "DGtal/geometry/volumes/distance/PowerMap.h"
-#include "DGtal/images/DefaultConstImageRange.h"
-#include "DGtal/kernel/domains/HyperRectDomain.h"
-#include "DGtal/images/ImageContainerBySTLMap.h"
-#include "DGtal/images/CImage.h"
-#include "DGtal/images/Image.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
 {
-
   /////////////////////////////////////////////////////////////////////////////
   // template class ReducedMedialAxis
   /**
    * Description of template class 'ReducedMedialAxis' <p>
    * \brief Aim: Implementation of the separable medial axis
-   * extraction.
+   * extraction for the l_2 metric.
    *
    * This utility struct extract medial axis balls from a
    * PowerMap. Basically, each (weighted) site of the PowerMap defines
@@ -77,57 +74,63 @@ namespace DGtal
    *        Transactions on Pattern Analysis and Machine Intelligence,
    *        29(3):437-448, 2007.
    *
-   * The output is an image associating ball radii (weight of the
-   * power map site) to maximal ball centers. Most methods output a
-   * lightweight proxy to an image container (of type ImageContainer,
-   * see below).
+   * The output is a vector of digital ball, with digital center and an
+   * integer @e squared @e radius.
+   *
    *
    * @note Following ReverseDistanceTransformation, the input shape is
    * defined as points with negative power distance.
    *
-   * @tparam TPowerMap any specialized PowerMap type @tparam
-   * TImageContainer any model of CImage to store the medial axis
-   * points (default: ImageContainerBySTLVector).
+   * @tparam TPowerMap any specialized PowerMap type 
    *
    * @see testReducedMedialAxis.cpp
    */
-  template <typename TPowerMap,
-            typename TImageContainer =  ImageContainerBySTLMap<typename TPowerMap::Domain,
-                                                               typename TPowerMap::PowerSeparableMetric::Value> >
+  template <typename TPowerMap>
   struct ReducedMedialAxis
   {
-    //MA Container
-    typedef Image<TImageContainer> Type;
-
+    ///Point type
+    typedef typename TPowerMap::Point Point;
+    
+    ///Weight type
+    typedef typename TPowerMap::Weight SquaredRadius;
+    
+    ///Digital medial ball type (digital center, integer squared radius)
+    typedef std::pair<Point,SquaredRadius> MABall;
+    
+    ///Medial Axis Constainer
+    typedef std::vector<MABall> MABalls;
+    
     /**
      * Extract reduced medial axis from a power map.
      * This methods is in @f$ O(|powerMap|)@f$.
      *
      * @param aPowerMap the input powerMap
      *
-     * @return a lightweight proxy to the ImageContainer specified in
-     * template arguments.
+     * @return a vector of digital balls ({center, squared radius}).
      */
     static
-    Type getReducedMedialAxisFromPowerMap(const TPowerMap &aPowerMap)
+    MABalls computeReducedMedialAxisFromPowerMap(const TPowerMap &aPowerMap)
     {
-      TImageContainer *computedMA = new TImageContainer( aPowerMap.domain() );
-
+      //Temporary container, a set of MA ball center
+      std::unordered_set<Point> centers;
+      
       for (typename TPowerMap::Domain::ConstIterator it = aPowerMap.domain().begin(),
              itend = aPowerMap.domain().end(); it != itend; ++it)
         {
-          
           const auto v  = aPowerMap( *it );
           const auto pv = aPowerMap.projectPoint( v );
           
           if ( aPowerMap.metricPtr()->powerDistance( *it, v, aPowerMap.weightImagePtr()->operator()( pv ) )
-                      < NumberTraits<typename TPowerMap::PowerSeparableMetric::Value>::ZERO ) 
-
-            computedMA->setValue( v, aPowerMap.weightImagePtr()->operator()( pv ) );
-          
+                      < NumberTraits<typename TPowerMap::PowerSeparableMetric::Value>::ZERO )
+            centers.insert( v  );
         }
 
-      return Type( computedMA );
+      //Final copy
+      MABalls computedMA;
+      for(auto &center: centers)
+        computedMA.push_back({ center, aPowerMap.weightImagePtr()->operator()( aPowerMap.projectPoint( center ) ) });
+      
+      return computedMA;
     }
   }; // end of class ReducedMedialAxis
 
